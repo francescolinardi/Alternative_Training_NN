@@ -1,6 +1,6 @@
 import numpy as np
 
-from ACO_NN.aco_nn import ACONeuralNet
+from NN.aco_nn import ACONeuralNet
 
 
 class ACOTrainer:
@@ -111,5 +111,5 @@ class ACOTrainer:
             acc = self.evoluzione(X, y)
             self.losses.append(acc)
             if should_print and len(self.losses) % print_every == 0:
-                print(f'Evoluzione {len(self.losses)}, loss: {acc:.4f}')
+                print(f'Evoluzione ACO {len(self.losses)}, loss: {acc:.4f}')
         return self.losses

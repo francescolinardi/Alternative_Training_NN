@@ -1,18 +1,25 @@
 import numpy as np
 
-from Classic_NN.classic_nn import ClassicNeuralNet
+from NN.classic_nn import ClassicNeuralNet
 
 
 def relu_derivative(x):
     return (x > 0).astype(float)
 
+def mexican_hat_derivative(x, center, scale):
+    z = (x - center) / scale
+    exp_term = np.exp(-0.5 * z**2)
+    d_psi_dz = (-3 * z + z**3) * exp_term
+    return d_psi_dz / scale
+
 
 class ClassicTrainer:
-    def __init__(self, model, learning_rate=0.01):
+    def __init__(self, model, activation='relu', learning_rate=0.01):
         if not isinstance(model, ClassicNeuralNet):
             raise TypeError("model must be an instance of ClassicNeuralNet")
 
         self.model = model
+        self.activation = activation
         self.learning_rate = learning_rate
         self.losses = []
         self.forward_calls = 0
@@ -26,7 +33,12 @@ class ClassicTrainer:
         db2 = np.sum(dZ2, axis=0, keepdims=True)
 
         dA1 = dZ2 @ self.model.W2.T
-        dZ1 = dA1 * relu_derivative(Z1)
+        if self.activation == 'mexican_hat':
+            dZ1 = dA1 * mexican_hat_derivative(Z1, center=0, scale=1)
+        elif self.activation == 'relu':
+            dZ1 = dA1 * relu_derivative(Z1)
+        else:
+            raise ValueError(f"Unsupported activation function: {self.activation}")
         dW1 = X.T @ dZ1
         db1 = np.sum(dZ1, axis=0, keepdims=True)
 
@@ -57,6 +69,6 @@ class ClassicTrainer:
             self.model.b2 -= self.learning_rate * db2
 
             if should_print and len(self.losses) % print_every == 0:
-                print(f"Iterazione {len(self.losses)}, loss: {loss:.4f}")
+                print(f"Iterazione MLP  {len(self.losses)}, loss: {loss:.4f}")
 
         return y_pred, self.losses

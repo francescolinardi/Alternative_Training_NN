@@ -3,8 +3,13 @@ import numpy as np
 def relu(x): 
     return np.maximum(0, x)
 
+def mexican_hat(x, center, scale):
+    z = (x - center) / scale
+    return (1 - z**2) * np.exp(-0.5 * z**2)
+
+
 class ClassicNeuralNet:
-    def __init__(self, input_size, hidden_size, output_size, seed=None, bias_init='zero'):
+    def __init__(self, input_size, hidden_size, output_size, activation='relu', seed=None, bias_init='zero'):
         if seed is not None:
             np.random.seed(seed)
 
@@ -15,6 +20,7 @@ class ClassicNeuralNet:
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.bias_init = bias_init
+        self.activation = activation
 
         self.W1 = np.random.randn(input_size, hidden_size)
         self.b1 = self._init_bias((1, hidden_size))
@@ -28,7 +34,12 @@ class ClassicNeuralNet:
 
     def forward(self, X):
         Z1 = X @ self.W1 + self.b1
-        A1 = relu(Z1)
+        if self.activation == 'mexican_hat':
+            A1 = mexican_hat(Z1, center=0, scale=1)
+        elif self.activation == 'relu':
+            A1 = relu(Z1)
+        else:
+            raise ValueError(f"Unsupported activation function: {self.activation}")
         Z2 = A1 @ self.W2 + self.b2
         return Z1, A1, Z2
 

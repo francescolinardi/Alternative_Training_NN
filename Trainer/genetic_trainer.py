@@ -1,7 +1,7 @@
 import copy
 import numpy as np
 
-from Genetic_NN.genetic_nn import GeneticNeuralNet
+from NN.genetic_nn import GeneticNeuralNet
 
 
 class GeneticTrainer:
@@ -196,5 +196,5 @@ class GeneticTrainer:
                 acc = strategy_map[strategy](X, y)
             self.losses.append(acc)
             if should_print and len(self.losses) % print_every == 0:
-                print(f'Evoluzione {len(self.losses)}, loss: {acc:.4f}')
+                print(f'Evoluzione GA {strategy} {len(self.losses)}, loss: {acc:.4f}')
         return self.losses

@@ -9,6 +9,7 @@ def run_single_experiment(
     mutation_strength, ga_strategies, elite_fraction, 
     evaporation_rate, pheromone_learning_rate,
     ClassicNeuralNet, ClassicTrainer, GeneticTrainer, ACOTrainer,
+    KAN, KANTrainer, kan_n_wavelets, kan_wavelet,
 ):
     np.random.seed(seed)
     results = []
@@ -50,6 +51,48 @@ def run_single_experiment(
         "time": elapsed,
         "converged": losses[-1] <= soglia,
         "learning_rate": learning_rate
+    })
+
+    # =======================
+    # KAN
+    # =======================
+    start = time.time()
+
+    kan_model = KAN(
+        input_size=X.shape[1],
+        hidden_size=hidden_size,
+        output_size=1,
+        n_wavelets=kan_n_wavelets,
+        wavelet=kan_wavelet,
+        seed=seed,
+    )
+
+    kan_trainer = KANTrainer(kan_model, learning_rate=learning_rate)
+
+    y_pred, losses = kan_trainer.train(
+        X, y,
+        print_every=None,
+        soglia=soglia,
+        max_iter=max_iter
+    )
+
+    elapsed = time.time() - start
+
+    results.append({
+        "method": "KAN",
+        "strategy": kan_wavelet,
+        "seed": seed,
+        "hidden_size": hidden_size,
+        "soglia": soglia,
+        "population_size": population_size,
+        "iterations": len(losses),
+        "final_loss": losses[-1],
+        "compute_units": kan_trainer.forward_calls + 2 * kan_trainer.backward_calls,
+        "forward_calls": kan_trainer.forward_calls,
+        "time": elapsed,
+        "converged": losses[-1] <= soglia,
+        "learning_rate": learning_rate,
+        "n_wavelets": kan_n_wavelets,
     })
 
     # =======================
@@ -168,6 +211,10 @@ def run_experiments(
     ClassicTrainer,
     GeneticTrainer,
     ACOTrainer,
+    KAN,
+    KANTrainer,
+    kan_n_wavelets=8,
+    kan_wavelet="mexican_hat",
 ):
     all_results = []
 
@@ -196,6 +243,10 @@ def run_experiments(
                         ClassicTrainer,
                         GeneticTrainer,
                         ACOTrainer,
+                        KAN,
+                        KANTrainer,
+                        kan_n_wavelets,
+                        kan_wavelet,
                     )
 
                     all_results.extend(res)

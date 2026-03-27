@@ -7,6 +7,9 @@ def mexican_hat(x, center, scale):
     z = (x - center) / scale
     return (1 - z**2) * np.exp(-0.5 * z**2)
 
+def parabola(x):
+    return x**2
+
 
 class ClassicNeuralNet:
     def __init__(self, input_size, hidden_size, output_size, activation='relu', seed=None, bias_init='zero'):
@@ -38,6 +41,8 @@ class ClassicNeuralNet:
             A1 = mexican_hat(Z1, center=0, scale=1)
         elif self.activation == 'relu':
             A1 = relu(Z1)
+        elif self.activation == 'parabola':
+            A1 = parabola(Z1)
         else:
             raise ValueError(f"Unsupported activation function: {self.activation}")
         Z2 = A1 @ self.W2 + self.b2

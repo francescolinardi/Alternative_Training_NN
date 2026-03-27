@@ -12,6 +12,9 @@ def mexican_hat_derivative(x, center, scale):
     d_psi_dz = (-3 * z + z**3) * exp_term
     return d_psi_dz / scale
 
+def parabola_derivative(x):
+    return 2 * x
+
 
 class ClassicTrainer:
     def __init__(self, model, activation='relu', learning_rate=0.01):
@@ -37,6 +40,8 @@ class ClassicTrainer:
             dZ1 = dA1 * mexican_hat_derivative(Z1, center=0, scale=1)
         elif self.activation == 'relu':
             dZ1 = dA1 * relu_derivative(Z1)
+        elif self.activation == 'parabola':
+            dZ1 = dA1 * parabola_derivative(Z1)
         else:
             raise ValueError(f"Unsupported activation function: {self.activation}")
         dW1 = X.T @ dZ1
